@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  db:
+    image: mariadb:10.11
+    container_name: mariadb_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: "1234"
+      MYSQL_DATABASE: "clientes_supermercado"
+    ports:
+      - "3308:3306"
+    volumes:
+      - mariadb_data:/var/lib/mysql
+
+  web:
+    build: .
+    container_name: flask_app
+    ports:
+      - "5000:5000"
+    environment:
+      - SERVIDOR=db
+      - USUARIO=root
+      - PASSWORD=1234
+      - BASE_DATOS=clientes_supermercado
+    depends_on:
+      - db
+
+volumes:
+  mariadb_data:
