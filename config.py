@@ -3,7 +3,7 @@ import os
 class Config:
     USUARIO = os.getenv("USUARIO", "root")
     PASSWORD = os.getenv("PASSWORD", "1234")
-    # 'db' es el nombre del servicio en docker-compose; cae en 'localhost' si ejecutas fuera de Docker
+   
     SERVIDOR = os.getenv("SERVIDOR", "localhost")
     PUERTO = os.getenv("PUERTO", "3306")
     BASE_DATOS = os.getenv("BASE_DATOS", "clientes_supermercado")
