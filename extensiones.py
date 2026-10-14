@@ -4,5 +4,5 @@ from sqlalchemy.orm import DeclarativeBase
 class Base(DeclarativeBase):
     pass
 
-# Instanciamos el objeto db sin vincularlo a ninguna app todavía
+
 db = SQLAlchemy(model_class=Base)
