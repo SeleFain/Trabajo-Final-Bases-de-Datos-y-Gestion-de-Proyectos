@@ -3,49 +3,66 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestión de Clientes</title>
-    <!-- Vinculamos el archivo CSS de Flask -->
+    <meta name="description" content="Panel de consulta de datos y reportes de Superstore.">
+    <title>Superstore</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap" rel="stylesheet">
+    <script defer src="{{ url_for('static', filename='js/code.js') }}"></script>
 </head>
 <body>
+    <aside class="sidebar">
+    <div class="brand"><span class="brand-mark">S</span><div><strong>Superstore</strong><small>Panel de análisis</small></div></div>
+    <p class="nav-label">ESPACIO DE TRABAJO</p>
+    <button class="nav-item active" data-view="dashboard"><span>▦</span> Resumen general</button>
+    <button class="nav-item" data-view="tablas"><span>▤</span> Explorar tablas</button>
+    <button class="nav-item" data-view="reportes"><span>▥</span> Reportes SQL</button>
+    <div class="sidebar-note"><span class="status-dot"></span><div><strong>Modo de consulta</strong><small>Solo lectura · Sin edición de datos</small></div></div>
+    </aside>
 
-    <div class="contenedor">
-        <h1>Clientes Supermercado</h1>
+    <main class="main">
+        <header class="topbar">
+            <div><p class="eyebrow">BASE DE DATOS II · TRABAJO FINAL</p><h1 id="page-title">Resumen general</h1></div>
+            <div class="connection"><span class="status-dot" id="status-dot"></span><span id="connection-text">Comprobando conexión…</span></div>
+        </header>
 
-        <!-- Formulario de Registro -->
-        <div class="tarjeta">
-            <h2>Registrar Nuevo Cliente</h2>
-            <form id="formulario-cliente">
-                <input type="text" id="nombre" placeholder="Nombre completo" required>
-                <input type="email" id="email" placeholder="Correo electrónico" required>
-                <input type="text" id="telefono" placeholder="Teléfono (Opcional)">
-                <button type="submit">Guardar Cliente</button>
-            </form>
-        </div>
+        <section class="view active" id="view-dashboard">
+            <div class="welcome"><div><p class="eyebrow light">SUPERSTORE DATASET</p><h2>Una visión clara de las ventas</h2><p>Indicadores y consultas calculados a partir de los registros de la base de datos.</p></div><div class="welcome-icon">↗</div></div>
+                <div class="section-heading"><div><h2>Indicadores principales</h2><p>Valores obtenidos directamente desde MariaDB.</p></div><button class="button secondary" id="refresh-dashboard">↻ Actualizar</button></div>
+                    <div class="kpi-grid">
+                    <article class="kpi-card"><div class="kpi-top"><span>Ventas totales</span><span class="kpi-icon purple">$</span></div><strong id="kpi-sales">—</strong><small>Importe acumulado</small></article>
+                    <article class="kpi-card"><div class="kpi-top"><span>Ganancia total</span><span class="kpi-icon green">↗</span></div><strong id="kpi-profit">—</strong><small>Resultado acumulado</small></article>
+                    <article class="kpi-card"><div class="kpi-top"><span>Pedidos</span><span class="kpi-icon blue">▤</span></div><strong id="kpi-orders">—</strong><small>Pedidos registrados</small></article>
+                    <article class="kpi-card"><div class="kpi-top"><span>Clientes</span><span class="kpi-icon orange">♙</span></div><strong id="kpi-customers">—</strong><small>Clientes registrados</small></article>
+                </div>
+            <div class="section-heading">
+                <div>
+                    <h2>Consultas destacadas</h2>
+                    <!--<p>Reportes agrupados mediante JOIN, SUM, COUNT y GROUP BY.</p>-->
+                </div>
+                <button class="button secondary" data-view="reportes">Ver todos los reportes →</button>
+            </div>
+            <div class="report-preview-grid">
+                <button class="report-tile" data-report="ventas_categoria"><span class="tile-icon">◫</span><span><strong>Ventas por categoría</strong><small>Ventas y ganancias por categoría de producto</small></span><span class="tile-arrow">→</span></button>
+                <button class="report-tile" data-report="ventas_region"><span class="tile-icon">◎</span><span><strong>Ventas por región</strong><small>Comparación de resultados por región</small></span><span class="tile-arrow">→</span></button>
+                <button class="report-tile" data-report="top_clientes"><span class="tile-icon">♙</span><span><strong>Principales clientes</strong><small>Los diez clientes con mayor volumen de ventas</small></span><span class="tile-arrow">→</span></button>
+                <button class="report-tile" data-report="productos_vendidos"><span class="tile-icon">▦</span><span><strong>Productos más vendidos</strong><small>Unidades y resultados por producto</small></span><span class="tile-arrow">→</span></button>
+            </div>
+            <p class="footnote">Los indicadores y reportes dependen de que la base se haya importado correctamente.</p>
+    </section>
 
-        <!-- Tabla de Resultados -->
-        <div class="tarjeta">
-            <h2>Lista de Clientes</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Nombre</th>
-                        <th>Email</th>
-                        <th>Teléfono</th>
-                    </tr>
-                </thead>
-                <tbody id="tabla-clientes">
-                    <!-- JavaScript insertará las filas aquí -->
-                </tbody>
-            </table>
-        </div>
-    </div>
+    <section class="view" id="view-tablas">
+        <div class="section-heading"><div><h2>Explorar tablas</h2><p>Consultá la estructura y los registros almacenados. Se muestran hasta 100 filas por tabla.</p></div></div>
+        <div class="toolbar"><label for="table-select">Tabla de la base</label><select id="table-select"><option value="">Cargando tablas…</option></select><span id="table-count" class="muted"></span></div>
+        <div class="data-card"><div class="table-wrap"><table><thead id="data-head"></thead><tbody id="data-body"><tr><td class="empty">Elegí una tabla para consultar sus datos.</td></tr></tbody></table></div><div class="table-footer" id="table-footer">Vista de solo lectura</div></div>
+    </section>
 
-    <!-- Vinculamos el archivo JavaScript de Flask -->
-    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    <section class="view" id="view-reportes">
+        <div class="section-heading"><div><h2>Reportes SQL</h2><p>Resultados de consultas predefinidas sobre tablas relacionadas.</p></div></div>
+        <div class="report-layout"><div class="report-list" id="report-list"></div><div class="data-card report-result"><div class="report-result-heading"><div><h3 id="report-title">Seleccioná un reporte</h3><p id="report-description">El resultado se mostrará aquí.</p></div></div><div class="table-wrap"><table><thead id="report-head"></thead><tbody id="report-body"><tr><td class="empty">Seleccioná uno de los reportes disponibles.</td></tr></tbody></table></div></div></div>
+    </section>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+        <!--<footer>Superstore · Aplicación académica de consulta · Frontend de solo lectura</footer>-->
+    </main>
 </body>
 </html>
+

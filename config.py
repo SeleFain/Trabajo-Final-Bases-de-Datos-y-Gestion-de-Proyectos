@@ -1,13 +1,17 @@
 import os
+from urllib.parse import quote_plus
 
 class Config:
-    USUARIO = os.getenv("USUARIO", "root")
-    PASSWORD = os.getenv("PASSWORD", "1234")
-    # 'db' es el nombre del servicio en docker-compose; cae en 'localhost' si ejecutas fuera de Docker
+    USUARIO = os.getenv("USUARIO", "superstore_lector")
+    PASSWORD = os.getenv("PASSWORD", "cambiar_esta_clave")
     SERVIDOR = os.getenv("SERVIDOR", "localhost")
-    PUERTO = os.getenv("PUERTO", "3306")
-    BASE_DATOS = os.getenv("BASE_DATOS", "clientes_supermercado")
-    
-    SQLALCHEMY_DATABASE_URI = f"mysql+pymysql://{USUARIO}:{PASSWORD}@{SERVIDOR}:{PUERTO}/{BASE_DATOS}"
+    PUERTO = os.getenv("PUERTO", "3308")
+    BASE_DATOS = os.getenv("BASE_DATOS", "clientes_supermercado_completa")
+
+    SQLALCHEMY_DATABASE_URI = (
+        f"mysql+pymysql://{quote_plus(USUARIO)}:{quote_plus(PASSWORD)}"
+        f"@{SERVIDOR}:{PUERTO}/{BASE_DATOS}?charset=utf8mb4"
+    )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    SQLALCHEMY_ENGINE_OPTIONS = {"pool_pre_ping": True}
+    SQLALCHEMY_ENGINE_OPTIONS = {"pool_pre_ping": True, "pool_recycle": 1800}
+

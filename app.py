@@ -1,26 +1,27 @@
 from flask import Flask
+from sqlalchemy import text
+from sqlalchemy.exc import SQLAlchemyError
 from config import Config
 from extensiones import db
 from rutas import web_bp
-# Importamos modelos para que db.create_all() sepa qué tablas crear
-import modelos 
 
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
-    
-    # Vinculamos la base de datos a la aplicación de Flask
     db.init_app(app)
-    
-    # Registramos el Blueprint de nuestras rutas
     app.register_blueprint(web_bp)
-    
-    # Creamos las tablas en MySQL automáticamente al arrancar la app
-    with app.app_context():
-        db.create_all()
-        
+
+    @app.get("/api/estado")
+    def estado():
+        try:
+            db.session.execute(text("SELECT 1"))
+            return {"estado": "ok", "base_datos": app.config["BASE_DATOS"]}, 200
+        except SQLAlchemyError:
+            app.logger.exception("No se pudo comprobar la conexión a la base")
+            return {"estado": "error", "mensaje": "No se pudo conectar con la base de datos."}, 503
+
     return app
 
 if __name__ == "__main__":
-    app = create_app()
-    app.run(debug=True)
+    create_app().run(host="0.0.0.0", port=5000, debug=False)
+

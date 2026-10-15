@@ -1,30 +1,38 @@
-version: '3.8'
-
 services:
   db:
     image: mariadb:10.11
-    container_name: mariadb_db
-    restart: always
+    container_name: mariadb_superstore
+    restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: "1234"
-      MYSQL_DATABASE: "clientes_supermercado"
+      MARIADB_ROOT_PASSWORD: "${MARIADB_ROOT_PASSWORD:1234}"
+      MARIADB_DATABASE: "${BASE_DATOS:-clientes_supermercado_completa}"
+      MARIADB_USER: "${USUARIO:-root}"
+      MARIADB_PASSWORD: "${PASSWORD:1234}"
     ports:
       - "3308:3306"
     volumes:
       - mariadb_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
 
   web:
     build: .
-    container_name: flask_app
+    container_name: superstore_web
+    restart: unless-stopped
     ports:
       - "5000:5000"
     environment:
-      - SERVIDOR=db
-      - USUARIO=root
-      - PASSWORD=1234
-      - BASE_DATOS=clientes_supermercado
+      SERVIDOR: db
+      PUERTO: 3306
+      USUARIO: "${USUARIO:root}"
+      PASSWORD: "${PASSWORD:1234}"
+      BASE_DATOS: "${BASE_DATOS:-clientes_supermercado_completa}"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
 volumes:
   mariadb_data:
