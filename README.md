@@ -12,7 +12,7 @@
 
 El proyecto utiliza un conjunto de datos de **Superstore**, con información sobre pedidos, clientes, productos, envíos, ubicaciones y resultados de ventas en Estados Unidos. La tabla de origen, `Superstore`, contiene **9.994 filas**.
 
-**Archivo original:** [Ver Superstore.csv](datos/Superstore.csv)
+**Archivo original:** [Ver Superstore.csv](entrega/datos/Superstore.csv)
 
 El objetivo es organizar los datos en tablas relacionadas y realizar consultas SQL para analizar las ventas.
 
