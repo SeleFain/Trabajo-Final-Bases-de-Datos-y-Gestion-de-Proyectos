@@ -2,8 +2,14 @@ import os
 from urllib.parse import quote_plus
 
 class Config:
-    USUARIO = os.getenv("USUARIO", "superstore_lector")
-    PASSWORD = os.getenv("PASSWORD", "cambiar_esta_clave")
+<<<<<<< HEAD
+    USUARIO = os.getenv("USUARIO", "root")
+    PASSWORD = os.getenv("PASSWORD", "1234")
+=======
+    USUARIO = os.getenv("USUARIO", "root")
+    PASSWORD = os.getenv("PASSWORD", "1234")
+   
+>>>>>>> 93fea182cd05d5d9e0573b3739f451ec9770aec8
     SERVIDOR = os.getenv("SERVIDOR", "localhost")
     PUERTO = os.getenv("PUERTO", "3308")
     BASE_DATOS = os.getenv("BASE_DATOS", "clientes_supermercado_completa")
