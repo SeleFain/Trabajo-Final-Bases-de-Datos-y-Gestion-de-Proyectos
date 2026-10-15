@@ -64,7 +64,7 @@ La tabla `detalle_pedido` relaciona pedidos y productos: un pedido puede incluir
 
 El diagrama refleja las tablas y sus relaciones PK/FK.
 
-<img width="832" height="538" alt="Captura de pantalla 2026-10-10 015120" src="https://github.com/user-attachments/assets/1b698eb2-c36d-4c74-85d9-8dd372d0feca" />
+![Diagrama entidad-relación](entrega/docs/diagrama_DER_superstore.png)
 
 ## 6. Creación de la base de datos y sentencias DDL
 
@@ -389,7 +389,7 @@ Para importar la base se necesita un respaldo SQL que incluya tablas, datos, rel
 
 3. Conectarse desde HeidiSQL a `127.0.0.1`, puerto `3308`, con las credenciales configuradas en `docker-compose.yml`.
 
-4. Abrir `respaldo/superstore_final.sql` en HeidiSQL.
+4. Abrir `entrega/backup/superstore_final.sql` en HeidiSQL.
 
 5. **Restaurar en una base vacía**, revisando primero los `CREATE DATABASE` y `USE` del respaldo para confirmar el nombre de destino.
 
