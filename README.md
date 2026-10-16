@@ -26,6 +26,7 @@ También se conserva la tabla original `Superstore` para cargar y comparar los d
 - **MySQL Workbench:** elaboración del diagrama de relaciones.
 - **Visual Studio Code, Git y GitHub:** archivos, documentación y control de versiones.
 
+
 ## 3. Análisis de los datos originales
 
 El CSV contiene columnas como `Row_ID`, `Order_ID`, `Order_Date`, `Ship_Date`, `Ship_Mode`, `Customer_ID`, `Customer_Name`, `Segment`, `Country`, `City`, `State`, `Postal_Code`, `Region`, `Product_ID`, `Category`, `Sub_Category`, `Product_Name`, `Sales`, `Quantity`, `Discount` y `Profit`.
@@ -101,7 +102,7 @@ Primero se importa el CSV a la tabla `Superstore`. Después se distribuyen sus d
 
 ### 7.1. Completar clientes con `UPDATE ... JOIN`
 
-Como los clientes ya tenían sus identificadores cargados, se completaron sus nombres y segmentos con los datos de `Superstore`:
+Se completaron los nombres y segmentos de los clientes con los datos de la tabla Superstore. Para asignar los datos al cliente correspondiente, se hizo coincidir su identificador en ambas tablas mediante `UPDATE ... JOIN`
 
 ```sql
 UPDATE clientes c
