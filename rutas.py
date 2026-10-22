@@ -1,4 +1,6 @@
-from flask import Blueprint, jsonify, render_template
+from flask import Blueprint, jsonify, render_template, request
+from decimal import Decimal, InvalidOperation
+from textwrap import dedent
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 from extensiones import db
@@ -100,6 +102,44 @@ REPORTES = {
     },
 }
 
+# Campos disponibles para buscar y orden de cada reporte: lista cerrada.
+FILTROS_REPORTES = {
+    "ventas_categoria": (["categoria"], "ventas_totales"),
+    "ventas_region": (["region"], "ventas_totales"),
+    "top_clientes": (["nombre_cliente", "id_cliente", "segmento"], "ventas_totales"),
+    "productos_vendidos": (["nombre_producto", "codigo_producto", "categoria", "subcategoria"], "unidades_vendidas"),
+    "pedidos_segmento": (["segmento"], "ventas_totales"),
+}
+
+def preparar_reporte(reporte_id):
+    campos, orden = FILTROS_REPORTES[reporte_id]
+    campo = request.args.get("campo", campos[0])
+    if campo not in campos:
+        raise ValueError("El campo de búsqueda no está permitido para este reporte.")
+    busqueda = request.args.get("busqueda", "").strip()
+    if len(busqueda) > 150:
+        raise ValueError("La búsqueda debe tener como máximo 150 caracteres.")
+    try:
+        limite = int(request.args.get("limite", "10" if reporte_id in ("top_clientes", "productos_vendidos") else "100"))
+        minimo = Decimal(request.args.get("min_ventas", "").strip() or "0")
+    except (ValueError, InvalidOperation):
+        raise ValueError("Ingresá una cantidad de resultados y ventas mínimas válidas.")
+    if not 1 <= limite <= 100 or not minimo.is_finite() or minimo < 0 or minimo > Decimal("999999999999.99"):
+        raise ValueError("Resultados: entre 1 y 100. Ventas mínimas: entre 0 y 999999999999.99.")
+    # Quitamos el orden y el límite originales para filtrar ANTES de elegir el top.
+    base = dedent(REPORTES[reporte_id]["sql"]).strip().split("ORDER BY")[0].strip()
+    condiciones = ["ventas_totales >= :min_ventas"]
+    parametros = {"min_ventas": float(minimo), "limite": limite}
+    if busqueda:
+        # Búsqueda literal: %, _ y ! se escapan; el valor siempre se parametriza.
+        literal = busqueda.replace("!", "!!").replace("%", "!%").replace("_", "!_")
+        condiciones.append(f"LOWER({campo}) LIKE LOWER(:busqueda) ESCAPE '!' ")
+        parametros["busqueda"] = f"%{literal}%"
+    sql = ("SELECT *\nFROM (\n" + base + "\n) AS resumen\nWHERE "
+           + "\n  AND ".join(condiciones)
+           + f"\nORDER BY {orden} DESC, {campos[0]} ASC\nLIMIT :limite")
+    return sql, parametros
+
 def ejecutar_consulta(sql, params=None):
     result = db.session.execute(text(sql), params or {})
     columnas = list(result.keys())
@@ -159,7 +199,7 @@ def indicadores():
 @web_bp.get("/api/reportes")
 def listar_reportes():
     return jsonify([{"id": clave, "titulo": valor["titulo"],
-                     "descripcion": valor["descripcion"]}
+                     "descripcion": valor["descripcion"], "campos": FILTROS_REPORTES[clave][0]}
                     for clave, valor in REPORTES.items()])
 
 @web_bp.get("/api/reportes/<reporte_id>")
@@ -168,10 +208,14 @@ def obtener_reporte(reporte_id):
     if reporte is None:
         return jsonify({"error": "Reporte no encontrado."}), 404
     try:
-        columnas, filas = ejecutar_consulta(reporte["sql"])
+        sql, parametros = preparar_reporte(reporte_id)
+        columnas, filas = ejecutar_consulta(sql, parametros)
         return jsonify({"id": reporte_id, "titulo": reporte["titulo"],
                         "descripcion": reporte["descripcion"],
-                        "columnas": columnas, "filas": filas})
+                        "columnas": columnas, "filas": filas,
+                        "sql": sql, "parametros": parametros})
+    except ValueError as error:
+        return jsonify({"error": str(error)}), 400
     except SQLAlchemyError:
         db.session.rollback()
         return jsonify({"error": "No se pudo ejecutar el reporte. Revisá que las tablas y columnas coincidan con el README."}), 500
